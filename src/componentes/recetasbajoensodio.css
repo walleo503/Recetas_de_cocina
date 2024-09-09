@@ -107,6 +107,14 @@
   cursor: pointer;
 }
 
+.modal-content ul li {
+  font-size: 20px; /* Este es el tamaño del texto de los ingredientes */
+}
+
+.modal-content ol li {
+  font-size: 20px; /* Este es el tamaño del texto de los pasos */
+}
+
 .recipe-item:hover {
   transform: scale(1.05);
 }
@@ -120,7 +128,7 @@
 
 .recipe-item p {
   margin-top: 10px;
-  font-size: 18px;
+  font-size: 25px;
   color: #333;
   text-align: center;
   width: 100%;
@@ -178,7 +186,7 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 15px;
 }
 
 .modal-buttons button:hover {
@@ -191,4 +199,58 @@
 
 .favorite-button:hover {
   background-color: #ff4500;
+}
+
+.modal-content .comment p {
+  font-size: 20px; /* Aquí puedes cambiar el tamaño del texto de los comentarios */
+}
+
+.comment-header p strong {
+  font-size: 15px; /* Aquí puedes cambiar el tamaño del nombre del usuario en los comentarios */
+}
+
+.comment-header p {
+  font-size: 15px; /* Aquí puedes cambiar el tamaño de la fecha del comentario */
+}
+
+/* Cuadro de texto para escribir el comentario */
+.modal-content textarea {
+  margin-top: 10px; /* Añade margen superior para separar del contenido previo */
+  margin-bottom: 20px; /* Añade margen inferior para separar del botón */
+  padding: 10px;
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  font-size: 16px;
+  resize: none;
+}
+
+/* Botón de publicar comentario */
+.modal-content button {
+  padding: 10px 20px;
+  background-color: #5ca9fb;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px; /* Añade margen superior para separación */
+}
+
+/* Barra de búsqueda */
+.search-bar {
+  padding: 8px;
+  font-size: 25px; /* Aumenta el tamaño de la letra */
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 250px;
+  margin-right: 15px;
+}
+
+/* Filtro de tiempo */
+.time-filter {
+  padding: 8px;
+  font-size: 20px; /* Aumenta el tamaño de la letra */
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
 }

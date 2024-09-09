@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import EnsaladaItaliana from './img/imgsodio/ensaladacaprese.png';
 import Bebidarosa from './img/imgsodio/bebida.png';
 import PandeBana from './img/imgsodio/PanBanana.png';
+import Usuariologo from "./img/usuario1.png";
+
 
 const recipes = [
   {
@@ -36,7 +38,7 @@ const recipes = [
       {
         user: {
           name: 'Carlos Perez',
-          image: './img/imgsodio/ensaladacaprese.png'
+          image: Usuariologo
         },
         date: '2024-09-02', // fecha del comentario
         text: 'Me encanta esta receta, es súper refrescante y fácil de hacer.'
@@ -69,7 +71,7 @@ const recipes = [
       {
         user: {
           name: 'Carlos Perez',
-          image: './img/imgsodio/ensaladacaprese.png'
+          image: Usuariologo
         },
         date: '2024-09-02', // fecha del comentario
         text: 'Me encanta esta receta, es súper refrescante y fácil de hacer.'
@@ -105,7 +107,7 @@ const recipes = [
       {
         user: {
           name: 'Carlos Perez',
-          image: './img/imgsodio/ensaladacaprese.png'
+          image: Usuariologo
         },
         date: '2024-09-02', // fecha del comentario
         text: 'Me encanta esta receta, es súper refrescante y fácil de hacer.'
