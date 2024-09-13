@@ -6,8 +6,8 @@ import { About } from "./components/about";
 import { Services } from "./components/services";
 import Login from "./components/Login/Login";
 import Recetario from "./componentes/Recetario";
-import Pimientos from "./componentes/RecetasVeganas";
-import Arroz from "./componentes/RecetasBajoensodio";  
+import Vegetarianas from "./componentes/RecetasVegetarianas";
+import Bajo_Sodio from "./componentes/RecetasBajoensodio";  
 import Carne from "./componentes/recetasConCarne";
 import Frutas from "./componentes/RecetasConFrutas";
 import Legumbres from "./componentes/RecetasConLegumbres";
@@ -15,7 +15,7 @@ import Pastas from "./componentes/RecetasConPasta";
 import Pescado from "./componentes/RecetasConPescado";
 import Pollo from "./componentes/RecetasConPollo";
 import Postres from "./componentes/RecetasPostres";
-import Vegetariana from "./componentes/RecetasVegetarianas";// Importa todos los nuevos componentes de recetas
+import Vegana from "./componentes/RecetasVeganas";
 import JsonData from "./data/data.json";
 import SmoothScroll from "smooth-scroll";
 import "./App.css";
@@ -49,8 +49,8 @@ const App = () => {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/recetario" element={<Recetario />} />
-          <Route path="/pimientos" element={<Pimientos />} />
-          <Route path="/arroz" element={<Arroz />} />
+          <Route path="/pimientos" element={<Vegetarianas />} />
+          <Route path="/arroz" element={<Bajo_Sodio/>} />
           <Route path="/carne" element={< Carne />} />
           <Route path="/frutas" element={< Frutas />} />   
           <Route path="/legumbres" element={< Legumbres />} /> 
@@ -58,7 +58,7 @@ const App = () => {
           <Route path="/pescado" element={< Pescado />} /> 
           <Route path="/pollo" element={< Pollo />} /> 
           <Route path="/postres" element={< Postres />} /> 
-          <Route path="/vegetarianas" element={< Vegetariana />} />  {/* Añade una ruta para cada nueva receta */}
+          <Route path="/vegana" element={< Vegana />} />  {/* Añade una ruta para cada nueva receta */}
           {/* Añadir las demás rutas de las recetas */}
         </Routes>
       </div>

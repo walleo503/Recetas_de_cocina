@@ -117,7 +117,7 @@ const recipes = [
   },
 ];
 
-export const Recetasveganas    = () => {
+export const RecetasVeganas   = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
@@ -171,7 +171,7 @@ export const Recetasveganas    = () => {
       <div className="page-background">
         <div className="header-container">
           <header className="header">
-            <h1>Recetas Veganas</h1>
+            <h1>Recetas Bajas en Sodio</h1>
             <input
               type="text"
               placeholder="Buscar recetas..."
@@ -280,5 +280,4 @@ export const Recetasveganas    = () => {
   );
 };
 
-
-export default Recetasveganas  ;
+export default RecetasVeganas  ;

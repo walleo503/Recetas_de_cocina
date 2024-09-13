@@ -172,10 +172,10 @@ export const Recetasconpescado    = () => {
       <div className="page-background">
         <div className="header-container">
           <header className="header">
-            <h1>Recetas con Pescados</h1>
+            <h1>Recetas con Pescado</h1>
             <input
               type="text"
-              placeholder="Buscar recetas..."
+              placeholder="Buscar receta s..."
               className="search-bar"
               onChange={handleSearchChange}
             />
