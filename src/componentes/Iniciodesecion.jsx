@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import '../Login/Login.css';
+import "./";
 import { FaUser, FaLock } from "react-icons/fa";
 
 const Login = () => {

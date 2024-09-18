@@ -4,7 +4,7 @@ import { Navigation } from "./components/navigation";
 import { Header } from "./components/header";
 import { About } from "./components/about";
 import { Services } from "./components/services";
-import Login from "./components/Login/Login";
+import Login from "./componentes/Login";
 import Recetario from "./componentes/Recetario";
 import Vegetarianas from "./componentes/RecetasVegetarianas";
 import Bajo_Sodio from "./componentes/RecetasBajoensodio";  

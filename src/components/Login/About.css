@@ -1,0 +1,42 @@
+
+#about {
+    background-color: #f8f9fa; /* Fondo claro para la sección */
+    padding: 50px 0;
+  }
+  
+  /* Título principal */
+  .about-title {
+    color: #2c3e50; /* Cambia el color del título principal */
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* Subtítulos */
+  .about-subtitle {
+    color: #16a085; /* Cambia el color del subtítulo */
+    font-size: 24px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+  
+  /* Descripción */
+  .about-description {
+    color: #34495e; /* Color del texto principal */
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: justify;
+  }
+  
+  /* Listas de beneficios */
+  .list-style ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .list-style ul li {
+    color: #2980b9; /* Color de los ítems de la lista */
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
