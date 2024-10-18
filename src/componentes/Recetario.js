@@ -1,67 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import '../componentes/styles.css';
 import { Navigation } from '../components/navigation';
 import axios from 'axios';
 
-import Pimientos from './img/Pimientos.png';
-import Arroz from './img/recetadearroz.png';
-import Fresas from './img/postredefresa.png';
-import Legumbres from './img/Legunbre.png';
-import Verduras from './img/ensalada.png';
-import Pasta from './img/espagetis.png';
-import Pescado from './img/pescadofrito.png';
-import Pollo from './img/pechugaalaplancha.png';
-import Carne from './img/carneasada.png';
-import Postres from './img/crepas.png';
-
-const recipes = [
-  { name: 'Recetas vegetarianas', image: Pimientos, link: '/pimientos' },
-  { name: 'Recetas bajas en sodio', image: Arroz, link: '/arroz' },
-  { name: 'Recetas con frutas', image: Fresas, link: '/fresas' },
-  { name: 'Recetas con legumbres', image: Legumbres, link: '/legumbres' },
-  { name: 'Recetas veganas', image: Verduras, link: '/verduras' },
-  { name: 'Recetas con pasta', image: Pasta, link: '/pasta' },
-  { name: 'Recetas con pescado', image: Pescado, link: '/pescado' },
-  { name: 'Recetas con pollo', image: Pollo, link: '/pollo' },
-  { name: 'Recetas con carne', image: Carne, link: '/carne' },
-  { name: 'Recetas de postres', image: Postres, link: '/postres' },
-];
-
 export const Recetario = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [newRecipe, setNewRecipe] = useState({ name: '', image: '' });
-
-  useEffect(() => {
-    // Envía todas las recetas automáticamente al cargar el componente
-    recipes.forEach((recipe) => {
-      axios.post('http://localhost:3001/addRecipe', {
-        nombre: recipe.name,
-        imagen_url: recipe.image,
-      });
-    });
-  }, []);
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [newRecipe, setNewRecipe] = useState({ name: '' });
+  const [imageFile, setImageFile] = useState(null); // Estado para manejar la imagen
+  const [error, setError] = useState('');
+  const maxNameLength = 50; // Límite de caracteres para el nombre
 
   const handleCreateNewRecipe = async () => {
+    if (!newRecipe.name || !imageFile) {
+      setError('Por favor, complete todos los campos.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nombre', newRecipe.name);
+    formData.append('imagen_file', imageFile); // Imagen cargada o arrastrada
+
     try {
-      await axios.post('http://localhost:3001/addRecipeClass', {
-        nombre: newRecipe.name,
-        imagen_url: newRecipe.image,
+      await axios.post('http://localhost:3001/addRecipeClass', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
+      
       alert('Nueva clase de receta creada');
       setShowModal(false);
+      setNewRecipe({ name: '' });
+      setImageFile(null);
+      setError('');
     } catch (error) {
+      console.error('Error:', error.response?.data || error.message);
       alert('Error al crear nueva clase de receta');
     }
+  };
+
+  // Maneja el drop de una imagen
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setImageFile(file);
+    } else {
+      setError('Por favor, seleccione un archivo de imagen válido.');
+    }
+  };
+
+  // Evita el comportamiento por defecto al arrastrar una imagen sobre la zona
+  const handleDragOver = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -75,24 +63,13 @@ export const Recetario = () => {
               type="text"
               placeholder="Buscar receta..."
               className="search-bar"
-              value={searchTerm}
-              onChange={handleSearchChange}
             />
-            <button onClick={() => setShowModal(true)}>
+            <button
+              onClick={() => setShowModal(true)}
+            >
               Crear nueva receta
             </button>
           </div>
-        </div>
-
-        <div className="recipes-container">
-          {filteredRecipes.map((recipe) => (
-            <div key={recipe.name} className="recipe-item">
-              <Link to={recipe.link}>
-                <img src={recipe.image} alt={recipe.name} />
-                <p>{recipe.name}</p>
-              </Link>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -100,24 +77,45 @@ export const Recetario = () => {
         <div className="modal">
           <div className="modal-content">
             <h2>Crear nueva clase de receta</h2>
+
+            {/* Campo de texto para el nombre de la receta */}
             <input
               type="text"
               placeholder="Nombre de la receta"
               value={newRecipe.name}
-              onChange={(e) =>
-                setNewRecipe({ ...newRecipe, name: e.target.value })
-              }
+              maxLength={maxNameLength}
+              onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })}
             />
-            <input
-              type="text"
-              placeholder="URL de la imagen"
-              value={newRecipe.image}
-              onChange={(e) =>
-                setNewRecipe({ ...newRecipe, image: e.target.value })
-              }
+            <p>{newRecipe.name.length}/{maxNameLength} caracteres</p>
+
+            {/* Área de arrastrar y soltar */}
+            <div
+              className="dropzone"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+            >
+              {imageFile ? (
+                <p>Imagen seleccionada: {imageFile.name}</p>
+              ) : (
+                <p>Arrastra una imagen aquí o haz clic para seleccionar</p>
+              )}
+            </div>
+
+            {/* Input para seleccionar una imagen */}
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={(e) => setImageFile(e.target.files[0])}
             />
-            <button onClick={handleCreateNewRecipe}>Crear</button>
-            <button onClick={() => setShowModal(false)}>Cerrar</button>
+
+            {/* Mostrar errores */}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            {/* Botones del modal */}
+            <div className="modal-buttons">
+              <button onClick={handleCreateNewRecipe}>Guardar</button>
+              <button onClick={() => setShowModal(false)}>Cancelar</button>
+            </div>
           </div>
         </div>
       )}
