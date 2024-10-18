@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './recetasbajoensodio.css';
+import '../componentes/recetasbajoensodio.css';
 import { Navigation } from '../components/navigation';
 import { useNavigate } from 'react-router-dom'; 
 import EnsaladaItaliana from './img/imgsodio/ensaladacaprese.png';

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../componentes/styles.css';
 import { Navigation } from '../components/navigation';
+import axios from 'axios';
 
 import Pimientos from './img/Pimientos.png';
 import Arroz from './img/recetadearroz.png';
@@ -29,6 +30,18 @@ const recipes = [
 
 export const Recetario = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [newRecipe, setNewRecipe] = useState({ name: '', image: '' });
+
+  useEffect(() => {
+    // Envía todas las recetas automáticamente al cargar el componente
+    recipes.forEach((recipe) => {
+      axios.post('http://localhost:3001/addRecipe', {
+        nombre: recipe.name,
+        imagen_url: recipe.image,
+      });
+    });
+  }, []);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -37,6 +50,19 @@ export const Recetario = () => {
   const filteredRecipes = recipes.filter((recipe) =>
     recipe.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleCreateNewRecipe = async () => {
+    try {
+      await axios.post('http://localhost:3001/addRecipeClass', {
+        nombre: newRecipe.name,
+        imagen_url: newRecipe.image,
+      });
+      alert('Nueva clase de receta creada');
+      setShowModal(false);
+    } catch (error) {
+      alert('Error al crear nueva clase de receta');
+    }
+  };
 
   return (
     <>
@@ -52,6 +78,9 @@ export const Recetario = () => {
               value={searchTerm}
               onChange={handleSearchChange}
             />
+            <button onClick={() => setShowModal(true)}>
+              Crear nueva receta
+            </button>
           </div>
         </div>
 
@@ -66,6 +95,32 @@ export const Recetario = () => {
           ))}
         </div>
       </div>
+
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Crear nueva clase de receta</h2>
+            <input
+              type="text"
+              placeholder="Nombre de la receta"
+              value={newRecipe.name}
+              onChange={(e) =>
+                setNewRecipe({ ...newRecipe, name: e.target.value })
+              }
+            />
+            <input
+              type="text"
+              placeholder="URL de la imagen"
+              value={newRecipe.image}
+              onChange={(e) =>
+                setNewRecipe({ ...newRecipe, image: e.target.value })
+              }
+            />
+            <button onClick={handleCreateNewRecipe}>Crear</button>
+            <button onClick={() => setShowModal(false)}>Cerrar</button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

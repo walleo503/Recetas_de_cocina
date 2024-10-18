@@ -87,6 +87,8 @@
   width: 100%;
 }
 
+
+
 .recipe-item {
   display: flex;
   flex-direction: column;
@@ -253,4 +255,26 @@
   border: 2px solid #ccc;
   border-radius: 8px;
   background-color: white;
+}
+
+.comment-header p strong {
+  color: #ff6347; /* Cambia a un color deseado */
+}
+
+.comment-header p {
+  color: #93bee2; /* Cambia a un color deseado para la fecha */
+}
+
+.modal-content .comment p {
+  color: #575757; /* Cambia a un color deseado para el comentario */
+}
+
+/* Estilos para el nombre del usuario */
+.modal-content p strong {
+  color: #333333; /* Cambia el color al que prefieras */
+}
+
+/* Estilos para el correo del usuario y la fecha */
+.modal-content p {
+  color: #333333; /* Cambia el color al que prefieras */
 }
