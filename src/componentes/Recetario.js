@@ -23,8 +23,7 @@ export const Recetario = () => {
     try {
       await axios.post('http://localhost:3001/addRecipeClass', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      
+      });      
       alert('Nueva clase de receta creada');
       setShowModal(false);
       setNewRecipe({ name: '' });
