@@ -1,124 +1,98 @@
-import React, { useState } from 'react';
-import '../componentes/styles.css';
-import { Navigation } from '../components/navigation';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Para redirigir a otra página
+import '../componentes/styles.css';
 
 export const Recetario = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [newRecipe, setNewRecipe] = useState({ name: '' });
-  const [imageFile, setImageFile] = useState(null); // Estado para manejar la imagen
+  const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState('');
-  const maxNameLength = 50; // Límite de caracteres para el nombre
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate(); // Hook para navegación
 
-  const handleCreateNewRecipe = async () => {
-    if (!newRecipe.name || !imageFile) {
-      setError('Por favor, complete todos los campos.');
-      return;
+  // Obtener recetas desde el backend cuando se monta el componente
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/recipes');
+        setRecipes(response.data); // Guardar recetas en el estado
+      } catch (error) {
+        console.error('Error al cargar las recetas:', error);
+        setError('Error al cargar las recetas');
+      }
+    };
+
+    fetchRecipes();
+
+    // Verificar si el usuario está autenticado al cargar la página
+    const loggedUser = localStorage.getItem('isAuthenticated');
+    if (loggedUser === 'true') {
+      setIsLoggedIn(true);
     }
+  }, []);
 
-    const formData = new FormData();
-    formData.append('nombre', newRecipe.name);
-    formData.append('imagen_file', imageFile); // Imagen cargada o arrastrada
-
+  // Función para actualizar la lista de recetas después de crear una receta
+  const updateRecipes = async () => {
     try {
-      await axios.post('http://localhost:3001/addRecipeClass', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });      
-      alert('Nueva clase de receta creada');
-      setShowModal(false);
-      setNewRecipe({ name: '' });
-      setImageFile(null);
-      setError('');
+      const response = await axios.get('http://localhost:3001/recipes');
+      setRecipes(response.data); // Actualizar recetas en el estado
     } catch (error) {
-      console.error('Error:', error.response?.data || error.message);
-      alert('Error al crear nueva clase de receta');
+      console.error('Error al actualizar las recetas:', error);
+      setError('Error al actualizar las recetas');
     }
   };
 
-  // Maneja el drop de una imagen
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setImageFile(file);
-    } else {
-      setError('Por favor, seleccione un archivo de imagen válido.');
-    }
+  // Función para manejar el cierre de sesión
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated'); // Remover del localStorage
+    setIsLoggedIn(false);
+    alert('Adiós! Has cerrado sesión correctamente.');
   };
 
-  // Evita el comportamiento por defecto al arrastrar una imagen sobre la zona
-  const handleDragOver = (e) => {
-    e.preventDefault();
+  // Función para manejar el clic en una receta
+  const handleRecipeClick = (id) => {
+    navigate(`/recipes/${id}`); // Redirigir a la página de detalles de la receta
   };
 
   return (
-    <>
-      <Navigation />
-      <div className="page-background">
-        <div className="header-container">
-          <div className="header">
-            <h1 className="recetario-title">Recetario</h1>
-            <input
-              type="text"
-              placeholder="Buscar receta..."
-              className="search-bar"
-            />
-            <button
-              onClick={() => setShowModal(true)}
-            >
-              Crear nueva receta
-            </button>
-          </div>
+    <div className="page-background">
+      <div className="header-container">
+        <div className="header">
+          <h1 className="recetario-title">Recetario</h1>
+
+          {isLoggedIn ? (
+            <>
+              <input
+                type="text"
+                placeholder="Buscar receta..."
+                className="search-bar"
+              />
+              <button onClick={handleLogout}>Cerrar Sesión</button>
+            </>
+          ) : (
+            <p> </p>
+          )}
         </div>
       </div>
 
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Crear nueva clase de receta</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Mostrar el error si existe */}
 
-            {/* Campo de texto para el nombre de la receta */}
-            <input
-              type="text"
-              placeholder="Nombre de la receta"
-              value={newRecipe.name}
-              maxLength={maxNameLength}
-              onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })}
-            />
-            <p>{newRecipe.name.length}/{maxNameLength} caracteres</p>
-
-            {/* Área de arrastrar y soltar */}
-            <div
-              className="dropzone"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
+      <div className="recipes-container">
+        {recipes.length > 0 ? (
+          recipes.map((recipe) => (
+            <div 
+              key={recipe.id} 
+              className="recipe-item" 
+              onClick={() => handleRecipeClick(recipe.id)} // Redirigir al hacer clic
             >
-              {imageFile ? (
-                <p>Imagen seleccionada: {imageFile.name}</p>
-              ) : (
-                <p>Arrastra una imagen aquí o haz clic para seleccionar</p>
-              )}
+              <img src={`http://localhost:3001${recipe.image_url}`} alt={recipe.title} />
+              <p>{recipe.title}</p>
             </div>
-
-            {/* Input para seleccionar una imagen */}
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={(e) => setImageFile(e.target.files[0])}
-            />
-
-            {/* Mostrar errores */}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-
-            {/* Botones del modal */}
-            <div className="modal-buttons">
-              <button onClick={handleCreateNewRecipe}>Guardar</button>
-              <button onClick={() => setShowModal(false)}>Cancelar</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+          ))
+        ) : (
+          <p>No hay recetas disponibles.</p>
+        )}
+      </div>
+    </div>
   );
 };
 

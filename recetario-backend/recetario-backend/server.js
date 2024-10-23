@@ -1,8 +1,8 @@
+const mysql = require('mysql2');
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const mysql = require('mysql2'); // Cambia si usas otra base de datos como SQLite
-const cors = require('cors'); // Para permitir peticiones desde React
+const cors = require('cors');
 
 const app = express();
 app.use(cors());
@@ -20,42 +20,116 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Configura la conexión a la base de datos
+// Conexión a la base de datos
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'tu_usuario',
-  password: 'tu_contraseña',
-  database: 'recetario_db',
+  user: 'feastadm', // Usuario creado
+  password: 'feastpss', // Contraseña creada
+  database: 'feastdotcom', // Base de datos creada
 });
 
 db.connect((err) => {
-  if (err) throw err;
-  console.log('Conectado a la base de datos');
+  if (err) {
+    console.error('Error al conectar a la base de datos:', err);
+    return;
+  }
+  console.log('Conectado a la base de datos feastdotcom');
 });
 
-// Ruta para agregar una nueva receta con imagen
+// Ruta para agregar una receta
 app.post('/addRecipeClass', upload.single('imagen_file'), (req, res) => {
-  const { nombre } = req.body;
-  const imagen = req.file.filename;
+  const { title, description, duration, category } = req.body;
+  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
-  if (!nombre || !imagen) {
-    return res.status(400).json({ error: 'Faltan campos: nombre o imagen.' });
+  console.log('Datos recibidos:', { title, description, duration, category, image_url });
+
+  if (!title || !description || !category || !image_url) {
+    console.error('Campos faltantes:', { title, description, duration, category, image_url });
+    return res.status(400).json({ error: 'Faltan campos.' });
   }
 
-  const query = 'INSERT INTO recetas (nombre, imagen) VALUES (?, ?)';
-  db.query(query, [nombre, imagen], (err, result) => {
+  const query = 'INSERT INTO recetas (title, description, duration, category, image_url) VALUES (?, ?, ?, ?, ?)';
+  db.query(query, [title, description, duration, category, image_url], (err, result) => {
     if (err) {
-      console.error('Error en la base de datos:', err);
-      return res.status(500).json({ error: 'Error en la base de datos.' });
+      console.error('Error al insertar la receta en la base de datos:', err.message);
+      return res.status(500).json({ error: 'Error en la base de datos.', details: err.message });
     }
-    res.json({ message: 'Receta creada con éxito.' });
+    res.json({ message: 'Receta creada con éxito.', recipeId: result.insertId });
   });
 });
 
-// Carpeta estática para las imágenes subidas
+// Ruta para obtener todas las recetas
+app.get('/recipes', (req, res) => {
+  const query = 'SELECT * FROM recetas';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error al obtener las recetas:', err);
+      return res.status(500).json({ error: 'Error en la base de datos.' });
+    }
+    res.json(results); // Devolvemos las recetas obtenidas
+  });
+});
+
+// Ruta para obtener los detalles de una receta por ID
+app.get('/recipes/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT * FROM recetas WHERE id = ?';
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Error al obtener los detalles de la receta:', err);
+      return res.status(500).json({ error: 'Error en la base de datos.' });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Receta no encontrada.' });
+    }
+    res.json(result[0]);
+  });
+});
+
+// Ruta para eliminar una receta por ID
+app.delete('/recipes/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM recetas WHERE id = ?';
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Error al eliminar la receta:', err);
+      return res.status(500).json({ error: 'Error en la base de datos.' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Receta no encontrada.' });
+    }
+    res.json({ message: 'Receta eliminada con éxito.' });
+  });
+});
+
+// Ruta para actualizar una receta por ID
+app.put('/recipes/:id', upload.single('imagen_file'), (req, res) => {
+  const { id } = req.params;
+  const { title, description, duration, category } = req.body;
+  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+  console.log('Datos recibidos para actualizar:', { title, description, duration, category, image_url });
+
+  const query = 'UPDATE recetas SET title = ?, description = ?, duration = ?, category = ?, image_url = ? WHERE id = ?';
+  db.query(query, [title, description, duration, category, image_url, id], (err, result) => {
+    if (err) {
+      console.error('Error al actualizar la receta:', err.message);
+      return res.status(500).json({ error: 'Error en la base de datos.', details: err.message });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Receta no encontrada.' });
+    }
+    res.json({ message: 'Receta actualizada con éxito.' });
+  });
+});
+
+// Carpeta estática para las imágenes
 app.use('/uploads', express.static('uploads'));
 
-// Inicia el servidor
+// Iniciar servidor
 app.listen(3001, () => {
-  console.log('Servidor corriendo en puerto 3001');
+  console.log('Servidor corriendo en el puerto 3001');
 });
