@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams,useNavigate } from 'react-router-dom';
-import './RecipeDetails.css'
-
+import { useParams, useNavigate } from 'react-router-dom';
+import './RecipeDetails.css';
 
 const RecipeDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Cambiar useHistory por useNavigate
+  const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null); 
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false); 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,10 +25,11 @@ const RecipeDetails = () => {
         setRecipe(response.data);
         setFormData({
           title: response.data.title,
-          DESCRIPTION: response.data.DESCRIPTION,
+          description: response.data.description,
           duration: response.data.duration,
           category: response.data.category,
         });
+        setImagePreview(`http://localhost:3001${response.data.image_url}`);
       } catch (error) {
         console.error('Error al cargar la receta:', error);
         setError('Error al cargar la receta');
@@ -41,13 +43,53 @@ const RecipeDetails = () => {
     setIsEditing(true);
   };
 
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setFormData({
+      title: recipe.title,
+      description: recipe.description,
+      duration: recipe.duration,
+      category: recipe.category,
+    });
+    setImagePreview(`http://localhost:3001${recipe.image_url}`);
+  };
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "image/png") {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = function () {
+        if (img.width === 500 && img.height === 500) {
+          setImageFile(file);
+          setImagePreview(URL.createObjectURL(file)); 
+        } else {
+          setError('La imagen debe ser de 500x500 píxeles.');
+        }
+      };
+    } else {
+      setError('Solo se permiten archivos .png');
+    }
+  };
+
+  const handleDeleteImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   const handleFormSubmit = async () => {
     try {
-      await axios.put(`http://localhost:3001/recipes/${id}`, formData);
+      const updatedData = { ...formData };
+      if (imageFile) {
+        const imageData = new FormData();
+        imageData.append('imagen_file', imageFile);
+        updatedData.image_url = imageFile.name;
+      }
+      await axios.put(`http://localhost:3001/recipes/${id}`, updatedData);
       setIsEditing(false);
       const response = await axios.get(`http://localhost:3001/recipes/${id}`);
       setRecipe(response.data);
@@ -59,18 +101,17 @@ const RecipeDetails = () => {
 
   const handleDelete = async () => {
     const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar esta receta?');
-      if (confirmDelete) {
-        try {
-          await axios.delete(`http://localhost:3001/recipes/${id}`);
-          alert('Receta eliminada con éxito');
-          navigate('/recetario'); // Redirige al recetario después de eliminar
-        } catch (error) {
-          console.error('Error al eliminar la receta:', error);
-          setError('Error al eliminar la receta');
-        }
+    if (confirmDelete) {
+      try {
+        await axios.delete(`http://localhost:3001/recipes/${id}`);
+        alert('Receta eliminada con éxito');
+        navigate('/recetario');
+      } catch (error) {
+        console.error('Error al eliminar la receta:', error);
+        setError('Error al eliminar la receta');
       }
+    }
   };
-
 
   if (error) {
     return <p>{error}</p>;
@@ -80,81 +121,98 @@ const RecipeDetails = () => {
     return <p>Cargando receta...</p>;
   }
 
-
   return (
-    <div>
-      <h1>
+    <div className="recipe-details-container">
+
+      <div className="image-container">
+        {imagePreview ? (
+          <>
+            <img className='image-preview' src={imagePreview} alt={recipe.title} />
+            {isEditing && <button className="delete-image-button" onClick={handleDeleteImage}>🗑️ Eliminar Imagen</button>}
+          </>
+        ) : (
+          isEditing && (
+            <div className="image-dropzone">
+              <input type="file" accept="image/png" onChange={handleImageChange} />
+              <p>Arrastra una imagen 500x500 aquí</p>
+            </div>
+          )
+        )}
+      </div>
+
+      <h5 className="title-title">
+        <strong>title:</strong>{' '}
         {isEditing ? (
-          <input
-            type="text"
+          <textarea
             name="title"
             value={formData.title}
             onChange={handleInputChange}
-            style={{ backgroundColor: '#f0f0f0', color: '#000' }}
+            className="input-title"
           />
         ) : (
           recipe.title
         )}
-      </h1>
+      </h5>
 
-      <img className='img-dt' src={`http://localhost:3001${recipe.image_url}`} alt={recipe.title} /> {/* Imagen no editable */}
-
-      <h5>
-        <strong style={{ color: '#000' }}>Descripción:</strong>{' '}
+      <h5 className="description-title">
+        <strong>Descripción:</strong>{' '}
         {isEditing ? (
-          <input
-            type="text"
-            name="DESCRIPTION"
-            value={formData.DESCRIPTION}
+          <textarea
+            name="description"
+            value={formData.description}
             onChange={handleInputChange}
-            style={{ backgroundColor: '#f0f0f0', color: '#000' }}
+            className="input-description"
           />
         ) : (
-          recipe.DESCRIPTION
+          recipe.description
         )}
       </h5>
 
-      <h5>
-        <strong style={{ color: '#000' }}>Tiempo de preparación:</strong>{' '}
+      <h5 className="prep-time-title">
+        <strong>Tiempo de preparación:</strong>{' '}
         {isEditing ? (
           <input
             type="number"
             name="duration"
             value={formData.duration}
             onChange={handleInputChange}
-            style={{ backgroundColor: '#f0f0f0', color: '#000' }}
+            className="input-duration"
           />
         ) : (
           `${recipe.duration} minutos`
         )}
       </h5>
 
-      <h5>
-        <strong style={{ color: '#000' }}>Categoría:</strong>{' '}
+      <h5 className="category-title">
+        <strong>Categoría:</strong>{' '}
         {isEditing ? (
           <input
             type="text"
             name="category"
             value={formData.category}
             onChange={handleInputChange}
-            style={{ backgroundColor: '#f0f0f0', color: '#000' }}
+            className="input-category"
           />
         ) : (
           recipe.category
         )}
       </h5>
 
-      <div>
+      <div className="buttons-container">
         {isEditing ? (
-          <button className='edit-button' onClick={handleFormSubmit}>Guardar cambios</button>
+          <>
+            <button className="edit-button" onClick={handleFormSubmit}>Guardar cambios</button>
+            <button className="cancel-button" onClick={handleCancelEdit}>Cancelar</button>
+          </>
         ) : (
-          <button onClick={handleEditClick}>Editar</button>
+          <>
+            <button className="edit-button" onClick={handleEditClick}>Editar</button>
+            <button className="delete-button" onClick={handleDelete}>Eliminar</button>
+          </>
         )}
-        <button className='delete-button' onClick={handleDelete}>Eliminar</button>
       </div>
     </div>
   );
 };
 
 export default RecipeDetails;
-
