@@ -106,25 +106,48 @@ app.delete('/recipes/:id', (req, res) => {
 });
 
 // Ruta para actualizar una receta por ID
-app.put('/recipes/:id', upload.single('imagen_file'), (req, res) => {
+app.put('/recipes/:id', (req, res) => {
   const { id } = req.params;
   const { title, description, duration, category } = req.body;
-  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
-  console.log('Datos recibidos para actualizar:', { title, description, duration, category, image_url });
-
-  const query = 'UPDATE recetas SET title = ?, description = ?, duration = ?, category = ?, image_url = ? WHERE id = ?';
-  db.query(query, [title, description, duration, category, image_url, id], (err, result) => {
+  // Primero obtenemos los datos actuales de la receta para comparar
+  const getQuery = 'SELECT image_url, description FROM recetas WHERE id = ?';
+  
+  db.query(getQuery, [id], (err, results) => {
     if (err) {
-      console.error('Error al actualizar la receta:', err.message);
-      return res.status(500).json({ error: 'Error en la base de datos.', details: err.message });
+      console.error('Error al obtener la receta:', err.message);
+      return res.status(500).json({ error: 'Error al obtener la receta.' });
     }
-    if (result.affectedRows === 0) {
+
+    if (results.length === 0) {
       return res.status(404).json({ error: 'Receta no encontrada.' });
     }
-    res.json({ message: 'Receta actualizada con éxito.' });
+
+    const currentImageUrl = results[0].image_url;
+    const currentDescription = results[0].description;
+
+    // Si description está vacío, mantenemos el valor actual
+    const finalDescription = description || currentDescription;
+
+    const query = 'UPDATE recetas SET title = ?, description = ?, duration = ?, category = ? WHERE id = ?';
+    const queryParams = [title, finalDescription, duration, category, id];
+
+    db.query(query, queryParams, (err, result) => {
+      if (err) {
+        console.error('Error al actualizar la receta:', err.message);
+        return res.status(500).json({ error: 'Error en la base de datos.', details: err.message });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Receta no encontrada.' });
+      }
+
+      res.json({ message: 'Receta actualizada con éxito.' });
+    });
   });
 });
+
+
 
 // Carpeta estática para las imágenes
 app.use('/uploads', express.static('uploads'));
