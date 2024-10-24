@@ -40,13 +40,36 @@
   flex: 1;
 }
 
+
+/* busqueda*/
 .search-bar {
-  padding: 8px;
-  font-size: 30px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  width: 250px;
+  width: 100%;
+  max-width: 400px; /* Limitar el tamaño máximo */
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #ddd; /* Borde claro */
+  border-radius: 15px; /* Bordes redondeados */
+  outline: none;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
+
+.search-bar:focus {
+  border-color: #007bff; /* Color de borde al hacer focus */
+  background-color: #fff; /* Fondo blanco al hacer focus */
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Sombra al hacer focus */
+}
+
+.search-bar::placeholder {
+  color: #888; /* Color para el texto del placeholder */
+  font-style: italic; /* Estilo para el placeholder */
+}
+
+.search-bar:hover {
+  border-color: #aaa; /* Borde más oscuro al pasar el ratón */
+}
+
 
 /* Grid layout para mostrar recetas */
 .recipes-grid {
