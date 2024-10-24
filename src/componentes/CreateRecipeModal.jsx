@@ -32,6 +32,7 @@ const CreateRecipeModal = ({ onClose, fetchRecipes }) => {
       const response = await axios.post('http://localhost:3001/addRecipeClass', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      window.location.reload(); 
       alert('Nueva receta creada');
       fetchRecipes(); // Actualiza las recetas después de la creación
       onClose();

@@ -24,7 +24,7 @@ const RecipeDetails = () => {
         setRecipe(response.data);
         setFormData({
           title: response.data.title,
-          description: response.data.DESCRIPTION,
+          DESCRIPTION: response.data.DESCRIPTION,
           duration: response.data.duration,
           category: response.data.category,
         });
@@ -97,7 +97,7 @@ const RecipeDetails = () => {
         )}
       </h1>
 
-      <img src={`http://localhost:3001${recipe.image_url}`} alt={recipe.title} /> {/* Imagen no editable */}
+      <img className='img-dt' src={`http://localhost:3001${recipe.image_url}`} alt={recipe.title} /> {/* Imagen no editable */}
 
       <h5>
         <strong style={{ color: '#000' }}>Descripción:</strong>{' '}
@@ -105,12 +105,12 @@ const RecipeDetails = () => {
           <input
             type="text"
             name="DESCRIPTION"
-            value={formData.description}
+            value={formData.DESCRIPTION}
             onChange={handleInputChange}
             style={{ backgroundColor: '#f0f0f0', color: '#000' }}
           />
         ) : (
-          recipe.description
+          recipe.DESCRIPTION
         )}
       </h5>
 

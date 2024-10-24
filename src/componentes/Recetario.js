@@ -66,7 +66,7 @@ export const Recetario = () => {
                 placeholder="Buscar receta..."
                 className="search-bar"
               />
-              <button onClick={handleLogout}>Cerrar Sesión</button>
+              
             </>
           ) : (
             <p> </p>
